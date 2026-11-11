@@ -1,0 +1,94 @@
+import type * as BaileysLib from '@whiskeysockets/baileys';
+import type { WAMessage, WAMessageKey, WASocket } from '@whiskeysockets/baileys';
+import { CallLinkType, CustomLinkPreview, ChatState, ContactCard, EngineEventCallbacks, IncomingMessage, LocationInput, MediaInput, MessageResult, MessageType, PollInput, Product, Quotable } from '../interfaces/whatsapp-engine.interface';
+import { type createLogger } from '../../common/services/logger.service';
+export interface BaileysMessagingHost {
+    sessionProxyUrl(): string | undefined;
+    ensureReady(): void;
+    getSocket(): WASocket;
+    getSocketOrNull(): WASocket | null;
+    readonly logger: ReturnType<typeof createLogger>;
+    toNeutralJid(jid: string): string;
+    toEngineJid(jid: string): string;
+    findPersistedLidPhone?(jid: string): Promise<string | null>;
+    normalizedSelfJid(): string;
+    getEphemeralExpiration(chatId: string): number | undefined;
+    toUnixSeconds(ts: number | string | {
+        toNumber(): number;
+    } | null | undefined): number;
+    loadLib(): Promise<typeof BaileysLib>;
+    putStoredMessage(msg: WAMessage): Promise<void> | undefined;
+    recordMessage(msg: WAMessage, type?: MessageType): void;
+    recordMessageEdit(chatId: string, messageId: string, text: string, type?: MessageType): void;
+    rememberOwnSend(id: string | null | undefined): void;
+    getStoredMessage(messageId: string): Promise<WAMessage | null> | undefined;
+    updateStoredMessage(messageId: string, change: (stored: WAMessage) => WAMessage | null): Promise<void> | undefined;
+    wasDeletedForEveryone(messageId: string): boolean;
+    markDeletedForEveryone(messageId: string): void;
+    pendingEditOf(messageId: string, target: WAMessageKey): string | undefined;
+    recordLidMapping(lid: string, pn: string, isReported?: boolean): void;
+    getOnMessageCreate(): EngineEventCallbacks['onMessageCreate'];
+    mapMessage(msg: WAMessage, contentType: string | undefined, opts?: {
+        skipMediaDownload?: boolean;
+    }): Promise<IncomingMessage>;
+}
+export declare function loadSharp(): Promise<import("sharp", { with: { "resolution-mode": "import" } }).SharpConstructor>;
+export declare function blockSvgDecoding(): Promise<void>;
+export declare function assertReadableImage(data: Buffer): Promise<void>;
+export declare const MAX_STICKER_FRAMES = 500;
+export declare function resolveMediaBuffer(media: MediaInput, sessionProxyUrl: string | undefined, fallbackType?: string): Promise<{
+    data: Buffer;
+    mimetype: string;
+}>;
+export declare function mapSendRefusal(error: unknown): unknown;
+export declare class BaileysMessaging {
+    private readonly host;
+    private readonly queryBudgetMs;
+    constructor(host: BaileysMessagingHost, queryBudgetMs?: number);
+    private confirmed;
+    private uploadTimeoutMs;
+    private sock;
+    private ensureReadyToSend;
+    private previewThumbnail;
+    sendTextMessage(chatId: string, text: string, mentions?: string[], sendOptions?: {
+        linkPreview?: boolean;
+        customPreview?: CustomLinkPreview;
+    } & Quotable): Promise<MessageResult>;
+    checkNumberExists(number: string): Promise<boolean>;
+    getNumberId(number: string): Promise<string | null>;
+    sendChatState(chatId: string, state: ChatState): Promise<void>;
+    setOnlinePresence(available: boolean): Promise<void>;
+    subscribeToPresence(chatId: string): Promise<void>;
+    sendProductMessage(chatId: string, product: Product, body?: string): Promise<MessageResult>;
+    sendImageMessage(chatId: string, media: MediaInput): Promise<MessageResult>;
+    sendVideoMessage(chatId: string, media: MediaInput): Promise<MessageResult>;
+    sendAudioMessage(chatId: string, media: MediaInput): Promise<MessageResult>;
+    sendDocumentMessage(chatId: string, media: MediaInput): Promise<MessageResult>;
+    createCallLink(type: CallLinkType, startTime: number): Promise<string>;
+    sendStickerMessage(chatId: string, media: MediaInput): Promise<MessageResult>;
+    sendLocationMessage(chatId: string, location: LocationInput): Promise<MessageResult>;
+    sendContactMessage(chatId: string, contact: ContactCard): Promise<MessageResult>;
+    sendPollMessage(chatId: string, poll: PollInput): Promise<MessageResult>;
+    replyToMessage(chatId: string, quotedMsgId: string, text: string, mentions?: string[]): Promise<MessageResult>;
+    clickButton(chatId: string, messageId: string, buttonId: string, text?: string): Promise<MessageResult>;
+    forwardMessage(fromChatId: string, toChatId: string, messageId: string): Promise<MessageResult>;
+    reactToMessage(chatId: string, messageId: string, emoji: string): Promise<void>;
+    deleteMessage(chatId: string, messageId: string, forEveryone?: boolean): Promise<void>;
+    private selfIsGroupAdmin;
+    editMessage(chatId: string, messageId: string, body: string, mentions?: string[]): Promise<MessageResult>;
+    private withMentions;
+    private toDeliverableJid;
+    private withEphemeral;
+    private previewSafe;
+    private previewSafeOptions;
+    private sendContent;
+    private send;
+    private emitOwnSendEcho;
+    private quoteOption;
+    private requireStored;
+    private changeStored;
+    private assertStoredInChat;
+    starMessage(chatId: string, messageId: string, star: boolean): Promise<void>;
+    pinMessage(chatId: string, messageId: string, durationSeconds: number): Promise<void>;
+    unpinMessage(chatId: string, messageId: string): Promise<void>;
+}

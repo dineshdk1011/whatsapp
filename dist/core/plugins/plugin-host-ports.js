@@ -1,0 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PLUGIN_SEARCH_REGISTRY_PORT = exports.PLUGIN_INSTANCE_PORT = exports.PLUGIN_CONVERSATION_MAPPING_PORT = exports.PLUGIN_SESSION_PORT = exports.PLUGIN_MESSAGE_PORT = void 0;
+exports.PLUGIN_MESSAGE_PORT = Symbol('PLUGIN_MESSAGE_PORT');
+exports.PLUGIN_SESSION_PORT = Symbol('PLUGIN_SESSION_PORT');
+exports.PLUGIN_CONVERSATION_MAPPING_PORT = Symbol('PLUGIN_CONVERSATION_MAPPING_PORT');
+exports.PLUGIN_INSTANCE_PORT = Symbol('PLUGIN_INSTANCE_PORT');
+exports.PLUGIN_SEARCH_REGISTRY_PORT = Symbol('PLUGIN_SEARCH_REGISTRY_PORT');
+//# sourceMappingURL=plugin-host-ports.js.map

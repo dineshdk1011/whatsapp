@@ -1,0 +1,10 @@
+import { type BaileysEventsHost } from './baileys-events';
+import { type BaileysGroupsHost } from './baileys-groups';
+import { type BaileysMessagingHost } from './baileys-messaging';
+import { type BaileysContactsHost } from './baileys-contacts';
+import { type BaileysStatusHost } from './baileys-status';
+import { type BaileysChannelsHost } from './baileys-channels';
+import { type BaileysCatalogHost } from './baileys-catalog';
+import { type BaileysHistoryHost } from './baileys-history';
+import { type BaileysLifecycleHost } from './baileys-lifecycle';
+export type BaileysEngineHost = BaileysEventsHost & BaileysGroupsHost & BaileysMessagingHost & BaileysContactsHost & BaileysStatusHost & BaileysChannelsHost & BaileysCatalogHost & BaileysHistoryHost & BaileysLifecycleHost;

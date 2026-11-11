@@ -1,0 +1,78 @@
+import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { LidMapping } from './lid-mapping.entity';
+export declare const LID_MAPPING_CACHE_DEFAULT = 5000;
+export interface SecondLidReport {
+    phone: string;
+    previousLid: string;
+    newLid: string;
+    sessionId: string | null;
+}
+export interface LidMappingStore {
+    getCached(lid: string): string | null | undefined;
+    resolveLid(jid: string): string | null;
+    lidsForPhone(phone: string): string[];
+    findPhoneForLid?(jid: string): Promise<string | null>;
+    findLidsForPhone?(phone: string): Promise<string[]>;
+    remember(lid: string, phone: string | null, sessionId?: string): Promise<boolean>;
+    rememberIfUnknown?(lid: string, phone: string, sessionId?: string): Promise<boolean>;
+}
+export declare class LidMappingStoreService implements LidMappingStore, OnModuleInit, OnModuleDestroy {
+    private readonly repo;
+    private readonly logger;
+    private readonly lidToPhone;
+    private readonly unreported;
+    private readonly phoneToLids;
+    private readonly pendingLookups;
+    private readonly absentFromTable;
+    private readonly unsettledWrites;
+    private readonly racedLookups;
+    private readonly seenBy;
+    private readonly failedWrites;
+    private readonly writeWarning;
+    private readonly secondLidOwed;
+    private readonly secondLidDropWarning;
+    private readonly secondLidReadWarning;
+    private secondLidChecks;
+    private secondLidTimer?;
+    private readonly secondLidWindowMs;
+    private readonly secondLidReported;
+    private secondLidClosing;
+    private secondLidListener?;
+    private readonly now;
+    private readonly maxCachedLids;
+    constructor(repo: Repository<LidMapping>);
+    onModuleInit(): Promise<void>;
+    onModuleDestroy(): void;
+    reload(): Promise<void>;
+    getCached(lid: string): string | null | undefined;
+    resolveLid(jid: string): string | null;
+    lidsForPhone(phone: string): string[];
+    findLidsForPhone(phone: string): Promise<string[]>;
+    phonesForLidsPersisted(lids: string[]): Promise<Record<string, string | null>>;
+    lidsForPhonesPersisted(phones: string[]): Promise<Record<string, string[]>>;
+    private readLidsForPhones;
+    private unstored;
+    private rowPhone;
+    findPhoneForLid(jid: string): Promise<string | null>;
+    rememberIfUnknown(lid: string, phone: string, sessionId?: string): Promise<boolean>;
+    remember(lid: string, phone: string | null, sessionId?: string): Promise<boolean>;
+    private beginWrite;
+    private endWrite;
+    private clear;
+    onSecondLid(listener: (report: SecondLidReport) => unknown): void;
+    private oweSecondLid;
+    private queueSecondLid;
+    private get closed();
+    private checkSecondLids;
+    private firstReport;
+    private reportSecondLid;
+    private warnWriteFailed;
+    private warnAtMost;
+    releaseSession(sessionId: string): Promise<void>;
+    private warmFromTable;
+    private index;
+    private noteAbsent;
+    private evictIfOverCap;
+    private unindex;
+}

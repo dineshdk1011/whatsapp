@@ -1,0 +1,1 @@
+{"version":3,"file":"handover-gate.js","sourceRoot":"","sources":["../../../src/core/plugins/handover-gate.ts"],"names":[],"mappings":";;AAGA,wDAOC;AAPD,SAAgB,sBAAsB,CACpC,QAAgF,EAChF,cAAsB;IAEtB,IAAI,CAAC,QAAQ;QAAE,OAAO,IAAI,CAAC;IAC3B,IAAI,QAAQ,CAAC,aAAa,KAAK,KAAK;QAAE,OAAO,IAAI,CAAC;IAClD,OAAO,QAAQ,CAAC,QAAQ,KAAK,cAAc,CAAC;AAC9C,CAAC"}

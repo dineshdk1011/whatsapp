@@ -1,0 +1,1 @@
+{"version":3,"file":"dashboard-csp.js","sourceRoot":"","sources":["../../src/config/dashboard-csp.ts"],"names":[],"mappings":";;;AAUA,0DAEC;AAZY,QAAA,+BAA+B,GAAG,sBAAsB,CAAC;AAUtE,SAAgB,uBAAuB,CAAC,IAAY,EAAE,KAAa;IACjE,OAAO,IAAI,CAAC,KAAK,CAAC,uCAA+B,CAAC,CAAC,IAAI,CAAC,KAAK,CAAC,CAAC;AACjE,CAAC"}

@@ -1,0 +1,146 @@
+import { ConfigService } from '@nestjs/config';
+import { Repository, DataSource } from 'typeorm';
+import { Session, SessionStatus } from './entities/session.entity';
+import { EngineFactory } from '../../engine/engine.factory';
+import { EngineRegistry } from '../../engine/engine-registry.service';
+import { LidMappingStoreService } from '../../engine/identity/lid-mapping-store.service';
+import { type ReconnectAttemptState } from './reconnect-policy';
+import { SessionLivenessWatchdog } from './session-liveness-watchdog.service';
+import { MessageProjector } from './message-projector.service';
+import { SessionErrorStore } from './session-error-store.service';
+import { SessionRestrictionStore } from './session-restriction-store.service';
+import { PresenceStore } from './presence-store.service';
+import { AuditService } from '../audit/audit.service';
+import { StatusStoreService } from '../status-store/status-store.service';
+import { IWhatsAppEngine, AccountRestriction } from '../../engine/interfaces/whatsapp-engine.interface';
+import { ShutdownService } from '../../common/services/shutdown.service';
+import { EventsGateway } from '../events/events.gateway';
+import { WebhookService } from '../webhook/webhook.service';
+import { HookManager } from '../../core/hooks';
+import { type StopHooks } from './session-engine-controls';
+import { SessionOwnershipService } from './session-ownership.service';
+export interface ReconnectState extends ReconnectAttemptState {
+    timer: NodeJS.Timeout | null;
+    session?: Session;
+    initInFlight?: boolean;
+    parkedFailure?: {
+        run: () => void;
+        terminal: boolean;
+    };
+    started?: number;
+    readyAt?: number;
+    readyEndedAt?: number;
+    readRetry?: {
+        timer: NodeJS.Timeout;
+        attempts: number;
+        reason: string;
+    };
+}
+export declare function resolveReconnectConfig(config: {
+    maxReconnectAttempts?: unknown;
+    reconnectBaseDelay?: unknown;
+} | null): {
+    maxAttempts: number;
+    baseDelay: number;
+};
+export declare function isReconnectPending(state: ReconnectState): boolean;
+export declare function startSlotHolders(engines: EngineRegistry, reconnectStates: Map<string, ReconnectState>): Set<string>;
+export declare function resolveMaxConcurrentSessions(configService?: Pick<ConfigService, 'get'>): number | null;
+export declare class EngineInitTimeoutError extends Error {
+    readonly timeoutMs: number;
+    constructor(timeoutMs: number);
+}
+export declare function readyRowUpdate(phone: string, pushName: string, at: Date): {
+    pushName: string;
+    connectedAt: Date;
+    lastActiveAt: Date;
+    phone?: string | undefined;
+    status: SessionStatus;
+};
+export declare class SessionEngineLifecycle {
+    private readonly sessionRepository;
+    private readonly dataSource;
+    private readonly engineFactory;
+    private readonly engineRegistry;
+    private readonly watchdog;
+    private readonly messages;
+    private readonly sessionErrors;
+    private readonly sessionRestrictions;
+    private readonly presence;
+    private readonly eventsGateway;
+    private readonly webhookService;
+    private readonly hookManager;
+    private readonly statusStore;
+    private readonly configService?;
+    private readonly shutdownService?;
+    private readonly auditService?;
+    private readonly ownership?;
+    private readonly logger;
+    private get engines();
+    private readonly fences;
+    private readonly broadcaster;
+    private readonly leafEvents;
+    private readonly eventWiring;
+    private readonly wiringHost;
+    private readonly controls;
+    private closed;
+    private reconnectStates;
+    private get lastDispatchedStatus();
+    private stoppingSessions;
+    private get initializingSessions();
+    private readonly pendingTeardowns;
+    private readonly pendingInitialStatuses;
+    private readonly operatorTeardowns;
+    private readonly stuckAuthRecoveryUsed;
+    constructor(sessionRepository: Repository<Session>, dataSource: DataSource, engineFactory: EngineFactory, engineRegistry: EngineRegistry, watchdog: SessionLivenessWatchdog, messages: MessageProjector, sessionErrors: SessionErrorStore, sessionRestrictions: SessionRestrictionStore, presence: PresenceStore, eventsGateway: EventsGateway, webhookService: WebhookService, hookManager: HookManager, statusStore: StatusStoreService, configService?: ConfigService | undefined, shutdownService?: ShutdownService | undefined, auditService?: AuditService | undefined, ownership?: SessionOwnershipService | undefined, lidMappingStore?: LidMappingStoreService);
+    start(id: string, options?: {
+        explicit?: boolean;
+        stoppedSince?: () => boolean;
+    }): Promise<Session>;
+    stop(id: string, hooks?: StopHooks): Promise<Session>;
+    logout(id: string, hooks?: StopHooks): Promise<Session>;
+    forceKill(id: string, hooks?: StopHooks): Promise<Session>;
+    delete(id: string, hooks?: StopHooks): Promise<void>;
+    holdDelete(id: string): () => void;
+    shutdown(): Promise<void>;
+    stopOrphanEngines(sessionIds: string[]): Promise<{
+        stopped: string[];
+        notRunning: string[];
+        failed: string[];
+    }>;
+    private teardownEngineSafely;
+    private trackPendingCredentialTeardown;
+    private awaitPendingTeardown;
+    private evictAndForceDestroy;
+    markStopping(id: string): void;
+    clearStopping(id: string): void;
+    isEngineActive(id: string): boolean;
+    startSlotHolders(): Set<string>;
+    private readyStretchHeld;
+    endReadyStretch(id: string): void;
+    private seedStatuses;
+    private isLiveEngine;
+    private ownsSession;
+    private initializeEngine;
+    private rejectRebind;
+    private handleEngineReady;
+    private handleEnginePushName;
+    private reapplyOwnPresence;
+    reportRestrictionLifted(id: string, lifted: AccountRestriction): void;
+    handleEngineDisconnected(id: string, engine: IWhatsAppEngine, reason: string): Promise<void>;
+    private retryDisconnectAfterFailedRead;
+    private recordTerminalUnlink;
+    private announceDisconnected;
+    private reportUnlinkWithoutRow;
+    private endReadRetry;
+    private endReadRetryOfGoneEngine;
+    private scheduleReconnect;
+    private prepareStart;
+    private isSessionRetired;
+    private purgeAuthDirsIfDeleted;
+    private executeReconnect;
+    private parkReconnectInitFailure;
+    private cancelReconnect;
+    updateStatus(id: string, status: SessionStatus, canAnnounce?: () => boolean): Promise<void>;
+    announceStatus(id: string, status: SessionStatus): void;
+}

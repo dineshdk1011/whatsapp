@@ -1,0 +1,85 @@
+import { OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { Queue } from 'bullmq';
+import { Webhook } from './entities/webhook.entity';
+import { WebhookOutboxService, type ReplayableDelivery } from './webhook-outbox.service';
+import { WebhookDeliveryFailure } from './entities/webhook-delivery-failure.entity';
+import { DEFAULT_WEBHOOK_SHUTDOWN_DRAIN_MS } from '../../common/services/shutdown-budget';
+import { LidMappingStoreService } from '../../engine/identity/lid-mapping-store.service';
+import { HookManager } from '../../core/hooks';
+export interface WebhookPayload {
+    event: string;
+    timestamp: string;
+    sessionId: string;
+    idempotencyKey: string;
+    deliveryId: string;
+    data: Record<string, unknown>;
+}
+export interface WebhookJobData {
+    webhookId: string;
+    url: string;
+    event: string;
+    payload: WebhookPayload;
+    attempt: number;
+    maxRetries: number;
+    replayData?: Record<string, unknown>;
+}
+export { DEFAULT_WEBHOOK_SHUTDOWN_DRAIN_MS };
+export type WebhookDeliveryOutcome = 'delivered' | 'enqueued' | 'cancelled' | 'failed' | 'unrecorded';
+export declare const isAbortedBackoff: (error: unknown, signal: AbortSignal | undefined) => boolean;
+export declare class WebhookDeliveryService implements OnModuleInit, OnModuleDestroy {
+    private readonly webhookRepository;
+    private readonly failureRepository;
+    private readonly configService;
+    private readonly hookManager;
+    private readonly outbox;
+    private readonly lidMappingStore?;
+    private readonly webhookQueue?;
+    private readonly logger;
+    private readonly queueEnabled;
+    private readonly dispatchLimiter;
+    private readonly dispatchMaxQueued;
+    private readonly failingWebhooks;
+    private readonly degradedSessionGates;
+    private readonly degradedSessionConcurrency;
+    private readonly inFlightDeliveries;
+    private readonly pendingBookkeeping;
+    private readonly locallyPending;
+    private readonly optInSubscriptions;
+    private readonly optInStages;
+    private readonly optInSessionStages;
+    constructor(webhookRepository: Repository<Webhook>, failureRepository: Repository<WebhookDeliveryFailure>, configService: ConfigService, hookManager: HookManager, outbox: WebhookOutboxService, lidMappingStore?: LidMappingStoreService | undefined, webhookQueue?: Queue<WebhookJobData> | undefined);
+    onModuleInit(): void;
+    onModuleDestroy(): Promise<void>;
+    dispatch(sessionId: string, event: string, data: Record<string, unknown>): Promise<void>;
+    private dispatchThroughOptInStage;
+    private noteOptInDrop;
+    private releaseOptInStage;
+    private fanOut;
+    invalidateOptInSubscriptions(sessionId: string): void;
+    private webhooksNamingOptInEvent;
+    private loadActiveWebhooks;
+    private filterMatchingWebhooks;
+    private recordUndelivered;
+    private preflightDelivery;
+    private deliverOne;
+    private enqueueWithFallback;
+    private deliverDirect;
+    private dispatchWithLimit;
+    isLocallyPending(idempotencyKey: string): boolean;
+    private gateFailingReceiver;
+    private parkedDeliveries;
+    private runLimited;
+    redeliver(webhook: Webhook, sessionId: string, event: string, idempotencyKey: string, data: Record<string, unknown>, options?: {
+        singleAttempt?: boolean;
+        oneDirectAttempt?: boolean;
+        signal?: AbortSignal;
+    }): Promise<WebhookDeliveryOutcome>;
+    isQueueJobPending(deliveryId: string): Promise<boolean>;
+    hasQueueJobCompleted(deliveryId: string): Promise<boolean>;
+    recordReplayExhaustion(row: ReplayableDelivery, url: string): Promise<boolean>;
+    private keepsFailurePayload;
+    private directOptions;
+    private deliverWebhook;
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"max-code-points.js","sourceRoot":"","sources":["../../../src/common/validation/max-code-points.ts"],"names":[],"mappings":";;AAQA,sCAKC;AAbD,qDAA6D;AAQ7D,SAAgB,aAAa,CAAC,GAAW,EAAE,OAA2B;IACpE,OAAO,IAAA,yBAAO,EAAC,IAAI,MAAM,CAAC,eAAe,GAAG,IAAI,EAAE,GAAG,CAAC,EAAE;QACtD,OAAO,EAAE,8CAA8C,GAAG,aAAa;QACvE,GAAG,OAAO;KACX,CAAC,CAAC;AACL,CAAC"}

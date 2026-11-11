@@ -1,0 +1,15 @@
+import { ApiKeyRole } from '../entities/api-key.entity';
+export declare const REQUIRED_ROLE_KEY = "requiredRole";
+export declare const PUBLIC_KEY = "isPublic";
+export declare const SESSION_SCOPED_KEY = "sessionScoped";
+export declare const UNSCOPED_KEY = "requireUnscopedKey";
+export declare const CHAT_SCOPED_KEY = "chatScoped";
+export declare const CHAT_QUOTED_ALLOWED_KEY = "chatQuotedAllowed";
+export declare const RequireRole: (role: ApiKeyRole) => import("@nestjs/common").CustomDecorator<string>;
+export declare const SessionScoped: () => import("@nestjs/common").CustomDecorator<string>;
+export declare const Public: () => import("@nestjs/common").CustomDecorator<string>;
+export declare const RequireUnscopedKey: () => import("@nestjs/common").CustomDecorator<string>;
+export type ChatScopeKind = 'fenced' | 'filtered' | 'agnostic';
+export declare const ChatScoped: (kind: ChatScopeKind) => import("@nestjs/common").CustomDecorator<string>;
+export declare const ChatQuotedAllowed: () => import("@nestjs/common").CustomDecorator<string>;
+export declare const CurrentApiKey: (...dataOrPipes: unknown[]) => ParameterDecorator;
